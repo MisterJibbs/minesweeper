@@ -16,6 +16,7 @@ class Tile
 
     def to_s
         return "□" if revealed == false
+        return "_" if value == 0
         value.to_s
     end
 end

@@ -1,4 +1,5 @@
 system 'clear'
+require_relative 'tile'
 require 'pry'
 require 'byebug'
 
@@ -7,7 +8,7 @@ class Board
     attr_accessor :grid
 
     def initialize(n)
-        @grid = Array.new(n) { Array.new(n, 0) }
+        @grid = Array.new(n) { Array.new(n, Tile.new) }
         @size = n * n
     end
 
@@ -26,7 +27,7 @@ class Board
         desired_bomb_count = size * 0.15
 
         until bomb_count >= desired_bomb_count
-            rand_pos = [rand(0...grid.count), rand(0...grid.first.count)]
+            rand_pos = [rand(0...grid.length), rand(0...grid.first.length)]
 
             if self[rand_pos] != :B
                 self[rand_pos] = :B
@@ -34,11 +35,19 @@ class Board
             end
         end
     end
+
+    def render
+        puts "  #{(0...grid.first.length).to_a.join(" ")}"
+        tiles_to_s.each_with_index { |row, i| puts "#{i} #{row.join(' ')}" }
+        return
+    end
+
+    def tiles_to_s
+        grid.map { |row| row.map(&:to_s) }
+    end
 end
 
 
 board = Board.new(9)
-# debugger
-board.place_bombs
 
 binding.pry
