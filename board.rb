@@ -1,3 +1,4 @@
+system 'clear'
 require 'pry'
 require 'byebug'
 
