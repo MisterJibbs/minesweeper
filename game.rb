@@ -20,10 +20,27 @@ class MinesweeperGame
     end
 
     def make_move
-        pos = get_pos
+        pos    = get_pos
+        fringe = get_fringe(pos)
         board[pos].reveal
     end
 
+    def get_fringe(pos)
+        fringe = []
+        x = pos[0]
+        y = pos[1]
+
+        (x-1..x+1).each do |i|
+            (y-1..y+1).each do |j|
+                if pos_within_grid?([i, j]) && [i, j] != [x, y] 
+                    fringe << [i, j] 
+                end
+            end
+        end
+
+        fringe
+    end
+    
     def get_pos
         pos = parse_pos(gets)
 
@@ -41,8 +58,8 @@ class MinesweeperGame
     end
 
     def pos_within_grid?(pos)
-        pos.first.between?(0, board.grid.length - 1) &&
-        pos.last.between?(0, board.grid.first.length - 1)
+        pos[0].between?(0, board.grid.length - 1) &&
+        pos[1].between?(0, board.grid.first.length - 1)
     end
 
     def parse_pos(input)

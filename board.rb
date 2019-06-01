@@ -10,7 +10,7 @@ class Board
     def initialize(n)
         @grid = Array.new(n) { Array.new(n) { Tile.new } }
         @size = n * n
-        populate
+        # populate
     end
 
     def [](pos)
@@ -38,6 +38,7 @@ class Board
     end
 
     def render
+        system 'clear'
         puts "  #{(0...grid.first.length).to_a.join(" ")}"
         tiles_to_s.each_with_index { |row, i| puts "#{i} #{row.join(' ')}" }
         return
@@ -61,9 +62,3 @@ class Board
         grid.flatten.any? { |tile| tile.value == :B && tile.revealed? }
     end
 end
-
-# board = Board.new(9)
-# # debugger
-# # board.place_bombs
-
-# binding.pry
