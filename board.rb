@@ -10,6 +10,7 @@ class Board
     def initialize(n)
         @grid = Array.new(n) { Array.new(n) { Tile.new } }
         @size = n * n
+        populate
     end
 
     def [](pos)
@@ -46,15 +47,23 @@ class Board
         grid.map { |row| row.map(&:to_s) }
     end
 
-    def over?
+    def won?
         grid.flatten.all? do |tile|
-            tile.revealed? if tile.value != :B
+            if tile.value == :B
+                true
+            else
+                tile.revealed?
+            end
         end
+    end
+
+    def lost?
+        grid.flatten.any? { |tile| tile.value == :B && tile.revealed? }
     end
 end
 
-board = Board.new(9)
-# debugger
-# board.place_bombs
+# board = Board.new(9)
+# # debugger
+# # board.place_bombs
 
-binding.pry
+# binding.pry

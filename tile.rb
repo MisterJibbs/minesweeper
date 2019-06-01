@@ -3,7 +3,7 @@ class Tile
 
     def initialize
         @value = 0  # => 0 is empty, 1-8 is adjacent bombs, :B is bomb, :F is flag
-        @revealed = true
+        @revealed = false
     end
 
     def value=(new_val)
