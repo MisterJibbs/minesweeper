@@ -8,7 +8,7 @@ class Board
     attr_accessor :grid
 
     def initialize(n)
-        @grid = Array.new(n) { Array.new(n, Tile.new) }
+        @grid = Array.new(n) { Array.new(n) { Tile.new } }
         @size = n * n
     end
 
@@ -19,17 +19,17 @@ class Board
     
     def []=(pos, value)
         x, y = pos
-        grid[x][y] = value
+        grid[x][y].value = value
     end
 
-    def place_bombs
+    def populate
         bomb_count = 0
-        desired_bomb_count = size * 0.15
+        desired_bomb_count = @size * 0.15
 
         until bomb_count >= desired_bomb_count
-            rand_pos = [rand(0...grid.length), rand(0...grid.first.length)]
+            rand_pos = [ rand(0...grid.length), rand(0...grid.first.length) ]
 
-            if self[rand_pos] != :B
+            if self[rand_pos].value != :B
                 self[rand_pos] = :B
                 bomb_count += 1
             end
@@ -45,9 +45,16 @@ class Board
     def tiles_to_s
         grid.map { |row| row.map(&:to_s) }
     end
+
+    def over?
+        grid.flatten.all? do |tile|
+            tile.revealed? if tile.value != :B
+        end
+    end
 end
 
-
 board = Board.new(9)
+# debugger
+# board.place_bombs
 
 binding.pry

@@ -1,9 +1,9 @@
 class Tile
-    attr_accessor :bomb, :revealed
+    attr_accessor :bomb, :revealed, :value
 
     def initialize
         @value = 0  # => 0 is empty, 1-8 is adjacent bombs, :B is bomb, :F is flag
-        @revealed = false
+        @revealed = true
     end
 
     def value=(new_val)
@@ -12,6 +12,10 @@ class Tile
 
     def reveal
         @revealed = true
+    end
+
+    def revealed?
+        @revealed
     end
 
     def to_s
