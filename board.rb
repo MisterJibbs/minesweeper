@@ -45,7 +45,7 @@ class Board
         return
     end
 
-    # testing
+    # for testing
     def reveal
         grid.flatten.each { |tile| tile.reveal }
     end
@@ -53,7 +53,7 @@ class Board
     def hide
         grid.flatten.each { |tile| tile.hide }
     end
-    # testing
+    # for testing
 
     def tiles_to_s
         grid.map { |row| row.map(&:to_s) }

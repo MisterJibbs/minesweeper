@@ -38,11 +38,38 @@ class MinesweeperGame
 
     def make_move
         pos = get_pos
-        reveal_recursion(pos)
+        action = get_action
+
+        if action == "r"
+            reveal_recursion(pos)
+        else
+            flag(pos)
+        end
     end
 
+    def get_action
+        puts "reveal or flag? (enter 'r' for reveal, 'f' for flag)"
+        action = gets.chomp
+
+        until action == "r" || action == "f"
+            action = gets.chomp
+        end
+
+        action
+    end
+
+    def flag(pos)
+        return board[pos].unflag if board[pos].flagged?
+        board[pos].flag
+    end
+    
     def reveal_recursion(pos)
         @seen_positions << pos
+
+        if board[pos].flagged?
+            puts "cannot reveal flagged positions"
+            return sleep 1 
+        end
 
         return board[pos].reveal if board[pos].value != 0
 
