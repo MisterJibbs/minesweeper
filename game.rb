@@ -8,7 +8,7 @@ class MinesweeperGame
 
     def initialize(n)
         @board = Board.new(n)
-        @seen_positions = []
+        @seen_positions = Set.new
     end
 
     def play
@@ -26,24 +26,24 @@ class MinesweeperGame
         check_for_adjacent_bombs(pos)
     end
 
-    def fringe_of(pos)
-        fringe = []
+    def surround_area_of(pos)
+        surround_area = []
         x = pos[0]
         y = pos[1]
 
         (x-1..x+1).each do |i|
             (y-1..y+1).each do |j|
                 if pos_within_grid?([i, j]) && ([i, j] != [x, y])
-                    fringe << [i, j] 
+                    surround_area << [i, j] 
                 end
             end
         end
 
-        fringe
+        surround_area
     end
 
     def check_for_adjacent_bombs(pos)
-        fringe_of(pos).each do |f_pos|
+        surround_area_of(pos).each do |f_pos|
             if board[f_pos].value != :B
                 board[f_pos].reveal
             end

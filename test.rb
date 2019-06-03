@@ -1,17 +1,21 @@
-grid = Array.new(4) { Array.new(3) { "_" } }
+require 'set'
 
-x = 3
-y = 2
-grid[x][y] = :X
+# grid = Array.new(4) { Array.new(3) { "_" } }
 
-puts "  #{(0...grid.first.length).to_a.join(" ")}"
-grid.each_with_index { |row, i| puts "#{i} #{row.join(' ')}" }
+# x = 3
+# y = 2
+# grid[x][y] = :X
 
-fringe = []
-(x-1..x+1).each do |i|
-    (y-1..y+1).each do |j|
-        fringe << [i, j] if [i, j] != [x, y]
-    end
-end
+# puts "  #{(0...grid.first.length).to_a.join(" ")}"
+# grid.each_with_index { |row, i| puts "#{i} #{row.join(' ')}" }
 
-p fringe
+# fringe = []
+# (x-1..x+1).each do |i|
+#     (y-1..y+1).each do |j|
+#         fringe << [i, j] if [i, j] != [x, y]
+#     end
+# end
+
+# p fringe
+
+set = Set.new
