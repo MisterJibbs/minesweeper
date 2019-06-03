@@ -10,8 +10,18 @@ class Board
     def initialize(n)
         @grid = Array.new(n) { Array.new(n) { Tile.new } }
         @size = n * n
-        # populate
+        populate
     end
+
+    # Test Methods
+    def reveal
+        grid.flatten.each { |tile| tile.reveal }
+    end
+
+    def hide
+        grid.flatten.each { |tile| tile.hide }
+    end
+    # Test Methods
 
     def [](pos)
         x, y = pos

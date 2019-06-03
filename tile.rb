@@ -14,6 +14,12 @@ class Tile
         @revealed = true
     end
 
+    # Testing method   
+    def hide
+        @revealed = false
+    end
+    # testing method
+
     def revealed?
         @revealed
     end

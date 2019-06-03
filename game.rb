@@ -8,6 +8,7 @@ class MinesweeperGame
 
     def initialize(n)
         @board = Board.new(n)
+        @seen_positions = []
     end
 
     def play
@@ -20,19 +21,19 @@ class MinesweeperGame
     end
 
     def make_move
-        pos    = get_pos
-        fringe = get_fringe(pos)
+        pos = get_pos
         board[pos].reveal
+        check_for_adjacent_bombs(pos)
     end
 
-    def get_fringe(pos)
+    def fringe_of(pos)
         fringe = []
         x = pos[0]
         y = pos[1]
 
         (x-1..x+1).each do |i|
             (y-1..y+1).each do |j|
-                if pos_within_grid?([i, j]) && [i, j] != [x, y] 
+                if pos_within_grid?([i, j]) && ([i, j] != [x, y])
                     fringe << [i, j] 
                 end
             end
@@ -40,7 +41,15 @@ class MinesweeperGame
 
         fringe
     end
-    
+
+    def check_for_adjacent_bombs(pos)
+        fringe_of(pos).each do |f_pos|
+            if board[f_pos].value != :B
+                board[f_pos].reveal
+            end
+        end
+    end
+
     def get_pos
         pos = parse_pos(gets)
 
