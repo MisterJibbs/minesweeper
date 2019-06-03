@@ -40,9 +40,32 @@ class Board
 
     def render
         system 'clear'
-        puts "  #{(0...grid.first.length).to_a.join(" ")}".yellow
-        tiles_to_s.each_with_index { |row, i| puts "#{i} ".yellow + "#{row.join(' ')}" }
-        return
+
+        if size < 100
+            puts "  #{(0...grid.first.length).to_a.join(" ")}".yellow
+            tiles_to_s.each_with_index { |row, i| puts "#{i} ".yellow + "#{row.join(' ')}" }
+            return
+        else
+            print "   "
+
+            (0...grid.first.length).to_a.each do |n|
+                if n < 10
+                    print "#{n}  ".yellow
+                else
+                    print "#{n} ".yellow
+                end
+            end
+
+            puts
+
+            tiles_to_s.each_with_index do |row, i| 
+                if i < 10
+                    puts " #{i} ".yellow + "#{row.join('  ')}"
+                else
+                    puts "#{i} ".yellow + "#{row.join('  ')}"
+                end
+            end
+        end
     end
 
     # for testing
