@@ -1,5 +1,5 @@
 class Tile
-    attr_accessor :bomb, :revealed, :value
+    attr_accessor :revealed, :value
 
     def initialize
         @value = 0  # => 0 is empty, 1-8 is adjacent bombs, :B is bomb, :F is flag
@@ -14,11 +14,11 @@ class Tile
         @revealed = true
     end
 
-    # Testing method   
+    # testing
     def hide
         @revealed = false
     end
-    # testing method
+    # testing
 
     def revealed?
         @revealed

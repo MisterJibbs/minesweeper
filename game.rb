@@ -2,6 +2,7 @@ system 'clear'
 require 'byebug'
 require 'pry'
 require_relative 'board'
+require 'set'
 
 class MinesweeperGame
     attr_accessor :board
@@ -23,31 +24,6 @@ class MinesweeperGame
     def make_move
         pos = get_pos
         board[pos].reveal
-        check_for_adjacent_bombs(pos)
-    end
-
-    def surround_area_of(pos)
-        surround_area = []
-        x = pos[0]
-        y = pos[1]
-
-        (x-1..x+1).each do |i|
-            (y-1..y+1).each do |j|
-                if pos_within_grid?([i, j]) && ([i, j] != [x, y])
-                    surround_area << [i, j] 
-                end
-            end
-        end
-
-        surround_area
-    end
-
-    def check_for_adjacent_bombs(pos)
-        surround_area_of(pos).each do |f_pos|
-            if board[f_pos].value != :B
-                board[f_pos].reveal
-            end
-        end
     end
 
     def get_pos
