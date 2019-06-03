@@ -32,16 +32,24 @@ class MinesweeperGame
             make_move
         end
 
+        board.render
         puts "game_over"
     end
 
     def make_move
         pos = get_pos
-        board[pos].reveal
+        reveal_recursion(pos)
     end
 
     def reveal_recursion(pos)
+        @seen_positions << pos
+
         return board[pos].reveal if board[pos].value != 0
+
+        board[pos].reveal
+
+        unseen_positions = adjacent_safe_positions(pos).reject { |adj_pos| @seen_positions.include?(adj_pos) }
+        unseen_positions.each { |new_pos| reveal_recursion(new_pos) }
     end
 
     def adjacent_positions(pos)

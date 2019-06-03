@@ -40,8 +40,8 @@ class Board
 
     def render
         system 'clear'
-        puts "  #{(0...grid.first.length).to_a.join(" ")}".green
-        tiles_to_s.each_with_index { |row, i| puts "#{i} ".green + "#{row.join(' ')}" }
+        puts "  #{(0...grid.first.length).to_a.join(" ")}".yellow
+        tiles_to_s.each_with_index { |row, i| puts "#{i} ".yellow + "#{row.join(' ')}" }
         return
     end
 
