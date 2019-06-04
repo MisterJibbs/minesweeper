@@ -29,6 +29,10 @@ class Tile
         @flagged
     end
 
+    def bombed?
+        @value == :B
+    end
+
     def to_s
         return "►".red  if self.flagged?
         return "□"      if !self.revealed?

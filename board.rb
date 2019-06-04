@@ -1,13 +1,9 @@
 require_relative 'tile'
 
 class Board
-    def is_empty?
-        grid.flatten.all? { |tile| tile.value == 0 }
-    end
-    
     def initialize(n, initial_pos = [])
         @grid = Array.new(n) { Array.new(n) { Tile.new } }
-        @size = n * n
+        @size = n
 
         unless initial_pos.empty?
             populate_based_on(initial_pos)
@@ -26,11 +22,11 @@ class Board
     end
 
     def won?
-        grid.flatten.none? { |tile| tile.value != :B && !tile.revealed? }
+        grid.flatten.none? { |tile| !tile.bombed? && !tile.revealed? }
     end
     
     def lost?
-        grid.flatten.any? { |tile| tile.value == :B && tile.revealed? }
+        grid.flatten.any? { |tile| tile.bombed? && tile.revealed? }
     end
 
     def tiles_to_s
@@ -40,7 +36,7 @@ class Board
     def render
         system 'clear'
 
-        if size < 101
+        if (size**2) < 101
             render_small_grid
         else
             render_large_grid
@@ -51,15 +47,13 @@ class Board
 
     def populate_based_on(initial_pos)
         bomb_count    = 0
-        desired_count = @size * 0.15
+        desired_count = (size**2) * 0.15
         initial_area  = adjacent_positions(initial_pos) << initial_pos
 
         while bomb_count < desired_count
-            rand_row = rand(0...grid.count)
-            rand_col = rand(0...grid.first.count)
-            rand_pos = [rand_row, rand_col]
+            rand_pos = [ rand(grid.size), rand(grid.first.size)]
 
-            if self[rand_pos].value != :B && !initial_area.include?(rand_pos)
+            if !self[rand_pos].bombed? && !initial_area.include?(rand_pos)
                 self[rand_pos] = :B
                 bomb_count    += 1
             end
@@ -70,7 +64,7 @@ class Board
         grid.each_with_index do |row, x|
             row.each_index do |y|
                 pos = [x,y]
-                self[pos].value = adj_bombs_count(pos) if self[pos].value != :B
+                self[pos].value = adj_bombs_count(pos) if !self[pos].bombed?
             end
         end
     end
@@ -91,12 +85,16 @@ class Board
     end
 
     def adj_bombs_count(pos)
-        adjacent_positions(pos).count { |position| self[position].value == :B }
+        adjacent_positions(pos).count { |position| self[position].bombed? }
     end
 
     def pos_within_grid?(pos)
         pos[0].between?(0, grid.count - 1) &&
         pos[1].between?(0, grid.first.count - 1)
+    end
+
+    def is_empty?
+        grid.flatten.all? { |tile| tile.value == 0 }
     end
 
     # Readability Methods

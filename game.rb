@@ -28,8 +28,6 @@ class MinesweeperGame
     end
     
     def play
-        welcome_announcement_UI
-
         if @board.is_empty?
             board.render
             generate_board(board_size, get_pos)
@@ -141,26 +139,6 @@ class MinesweeperGame
 
     # UI Methods
 
-    def welcome_announcement_UI
-        system "clear"
-
-        puts
-        puts  "      Oh boy, it's...".blue
-        puts
-        sleep 1.0
-        puts  "      ╔═════════════╗".green
-        print "      ║ "             .green
-        print         "MINESWEEPER"  .light_yellow
-        puts                     " ║".green
-        puts  "      ╚═════════════╝".green
-        sleep 1.0
-        puts
-        puts  "   Press enter to start".blue
-        puts
-
-        gets
-    end
-
     def game_over_announcement_UI
         if board.won?
             win_announcement_UI
@@ -231,7 +209,7 @@ class MinesweeperGame
     def save_success_announcement_UI
         puts
         print "[Success!] ".yellow
-        print  "Game has been saved."
+        print            "Game has been saved."
         sleep 1.5
     end
 

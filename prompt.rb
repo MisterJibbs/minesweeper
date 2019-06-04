@@ -1,3 +1,23 @@
+def welcome_announcement_UI
+    system "clear"
+
+    puts
+    puts  "      Oh boy, it's...".blue
+    puts
+    sleep 0.7
+    puts  "      ╔═════════════╗".green
+    print "      ║ "             .green
+    print         "MINESWEEPER"  .light_yellow
+    puts                     " ║".green
+    puts  "      ╚═════════════╝".green
+    sleep 0.7
+    puts
+    puts  "   Press enter to start".blue
+    puts
+
+    gets
+end
+
 def prompt_for_load_file_UI
     system 'clear'
 
