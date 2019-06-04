@@ -1,7 +1,7 @@
 require 'colorize'
 
 class Tile
-    attr_accessor :revealed, :value
+    attr_reader :value
 
     def initialize
         @value    = 0
@@ -30,9 +30,10 @@ class Tile
     end
 
     def to_s
-        return "►".red if self.flagged?
-        return "□"     if !self.revealed?
-        return "_"                      if value == 0
+        return "►".red  if self.flagged?
+        return "□"      if !self.revealed?
+        
+        return "-"                      if value == 0
         return value.to_s.blue          if value == 1
         return value.to_s.green         if value == 2
         return value.to_s.red           if value == 3

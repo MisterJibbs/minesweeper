@@ -1,14 +1,14 @@
 require_relative 'tile'
 
 class Board
-    attr_reader   :size
-    attr_accessor :grid
-
-    def initialize(n)
+    def initialize(n, initial_pos = [])
         @grid = Array.new(n) { Array.new(n) { Tile.new } }
         @size = n * n
-        populate
-        detect_bombs
+
+        unless initial_pos.empty?
+            populate_based_on(initial_pos)
+            detect_bombs
+        end
     end
 
     def [](pos)
@@ -26,7 +26,7 @@ class Board
     end
     
     def lost?
-        grid.flatten.any?  { |tile| tile.value == :B && tile.revealed? }
+        grid.flatten.any? { |tile| tile.value == :B && tile.revealed? }
     end
 
     def tiles_to_s
@@ -45,16 +45,17 @@ class Board
         puts
     end
 
-    def populate
+    def populate_based_on(initial_pos)
         bomb_count    = 0
         desired_count = @size * 0.15
+        initial_area  = adjacent_positions(initial_pos) + initial_pos
 
         while bomb_count < desired_count
             rand_row = rand(0...grid.count)
             rand_col = rand(0...grid.first.count)
             rand_pos = [rand_row, rand_col]
 
-            if self[rand_pos].value != :B
+            if self[rand_pos].value != :B && !initial_area.include?(rand_pos)
                 self[rand_pos] = :B
                 bomb_count    += 1
             end
@@ -116,4 +117,9 @@ class Board
             puts "#{i} ".yellow + "#{row.join('  ')}"
         end
     end
+
+    private
+
+    attr_reader   :size
+    attr_accessor :grid
 end

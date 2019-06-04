@@ -2,14 +2,18 @@ require_relative 'board'
 require 'set'
 
 class MinesweeperGame
-    attr_accessor :board
-
     def initialize(n)
-        @board = Board.new(n)
+        @board          = Board.new(n)
+        @board_size     = n
         @seen_positions = Set.new
     end
     
     def play
+        welcome_announcement_UI
+
+        board.render
+        generate_board(board_size, get_pos)
+
         until over?
             board.render
             make_move
@@ -17,6 +21,11 @@ class MinesweeperGame
 
         board.render
         game_over_announcement_UI
+    end
+
+    def generate_board(board_size, initial_pos)
+        @board = Board.new(board_size, initial_pos)
+        reveal_recursion(initial_pos)
     end
 
     def over?
@@ -40,14 +49,18 @@ class MinesweeperGame
         @seen_positions << pos
 
         if board[pos].value != 0
-            return board[pos].reveal
+            board[pos].reveal
         else
             board[pos].reveal
+            empty_adj_positions(pos).each { |new_pos| reveal_recursion(new_pos) }
+        end
+    end
 
-            unflagged_positions = adj_safe_positions(pos).reject { |adj_pos| board[adj_pos].flagged? }
-            unseen_positions    =     unflagged_positions.reject { |adj_pos| @seen_positions.include?(adj_pos) }
-
-            unseen_positions.each { |new_pos| reveal_recursion(new_pos) }
+    def empty_adj_positions(pos)
+        adjacent_positions(pos).reject do |adj_pos| 
+            @seen_positions.include?(adj_pos) || 
+            board[adj_pos].value == :B ||
+            board[adj_pos].flagged?
         end
     end
 
@@ -58,7 +71,6 @@ class MinesweeperGame
 
     def get_pos
         prompt_for_pos_UI
-
         pos = parse_pos(gets)
 
         until valid_pos?(pos)
@@ -85,7 +97,6 @@ class MinesweeperGame
 
     def get_action
         prompt_for_action_UI
-
         action = gets.chomp
 
         until action == "r" || action == "f"
@@ -96,15 +107,36 @@ class MinesweeperGame
         action
     end
 
-    def adj_safe_positions(pos)
-        adjacent_positions(pos).reject { |position| board[position].value == :B }
-    end
-
     def adjacent_positions(pos)
         board.adjacent_positions(pos)
     end
     
+    private
+
+    attr_reader   :board_size
+    attr_accessor :board
+
     # UI Methods
+
+    def welcome_announcement_UI
+        system "clear"
+
+        puts
+        puts  "      Oh boy, it's...".blue
+        puts
+        sleep 1.1
+        puts  "      ╔═════════════╗".green
+        print "      ║ "             .green
+        print         "MINESWEEPER"  .light_yellow
+        puts                     " ║".green
+        puts  "      ╚═════════════╝".green
+        sleep 1.5
+        puts
+        puts  "   Press enter to start".blue
+        puts
+
+        gets
+    end
 
     def game_over_announcement_UI
         if board.won?
@@ -167,23 +199,24 @@ class MinesweeperGame
     def alert_invalid_reveal_UI
         error_UI
         puts "Cannot reveal flagged positions!"
-        sleep 1.5
+        sleep 1.2
     end
 
     def alert_invalid_flag_UI
         error_UI
         puts "Cannot flagged revealed positions!"
-        sleep 1.5
+        sleep 1.2
     end
 
     def alert_invalid_pos_UI
         error_UI
         puts "That is not a valid position."
-        sleep 1
+        sleep 1.2
     end
 
     def alert_invalid_action_UI
         error_UI
         puts "That is not a valid action."
+        sleep 1.2
     end
 end
