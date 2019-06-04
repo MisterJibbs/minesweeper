@@ -28,35 +28,44 @@ class MinesweeperGame
         action = get_action
 
         if action == "r"
-            return reveal_flagged_pos_error_UI if board[pos].flagged?
             reveal_recursion(pos)
         else
-            return flag_revealed_pos_error_UI if board[pos].revealed?
             flag(pos)
         end
     end
 
     def reveal_recursion(pos)
-        break if board[pos].flagged?
+        return alert_invalid_reveal_UI if board[pos].flagged?
 
         @seen_positions << pos
-        return board[pos].reveal if board[pos].value != 0
 
-        board[pos].reveal
+        if board[pos].value != 0
+            return board[pos].reveal
+        else
+            board[pos].reveal
 
-        unseen_positions = adj_safe_positions(pos).reject { |adj_pos| @seen_positions.include?(adj_pos) }
-        unseen_positions.each { |new_pos| reveal_recursion(new_pos) }
+            unflagged_positions = adj_safe_positions(pos).reject { |adj_pos| board[adj_pos].flagged? }
+            unseen_positions    =     unflagged_positions.reject { |adj_pos| @seen_positions.include?(adj_pos) }
+
+            unseen_positions.each { |new_pos| reveal_recursion(new_pos) }
+        end
     end
 
     def flag(pos)
+        return alert_invalid_flag_UI if board[pos].revealed?
         board[pos].flag
     end
 
     def get_pos
         prompt_for_pos_UI
 
-        pos = nil
-        pos = parse_pos(gets) until valid_pos?(pos)
+        pos = parse_pos(gets)
+
+        until valid_pos?(pos)
+            alert_invalid_pos_UI
+            pos = parse_pos(gets) 
+        end
+
         pos
     end
     
@@ -77,8 +86,13 @@ class MinesweeperGame
     def get_action
         prompt_for_action_UI
 
-        action = nil
-        action = gets.chomp until action == "r" || action == "f"
+        action = gets.chomp
+
+        until action == "r" || action == "f"
+            alert_invalid_action_UI
+            action = gets.chomp 
+        end
+
         action
     end
 
@@ -89,10 +103,6 @@ class MinesweeperGame
     def adjacent_positions(pos)
         board.adjacent_positions(pos)
     end
-
-    # Readability Methods
-
-
     
     # UI Methods
 
@@ -150,19 +160,30 @@ class MinesweeperGame
         print "> ".green
     end
 
-    def reveal_flagged_pos_error_UI
-        puts
+    def error_UI
         print "[Error] ".red
-        puts          "Cannot reveal flagged positions!"
-    
+    end
+
+    def alert_invalid_reveal_UI
+        error_UI
+        puts "Cannot reveal flagged positions!"
         sleep 1.5
     end
 
-    def flag_revealed_pos_error_UI
-        puts
-        print "[Error] ".red
-        puts          "Cannot flagged revealed positions!"
-    
+    def alert_invalid_flag_UI
+        error_UI
+        puts "Cannot flagged revealed positions!"
         sleep 1.5
+    end
+
+    def alert_invalid_pos_UI
+        error_UI
+        puts "That is not a valid position."
+        sleep 1
+    end
+
+    def alert_invalid_action_UI
+        error_UI
+        puts "That is not a valid action."
     end
 end
