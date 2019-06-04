@@ -1,7 +1,26 @@
 require_relative 'board'
+require 'yaml'
 require 'set'
 
 class MinesweeperGame
+    def save_game
+        prompt_for_save_file_UI
+
+        n = gets.chomp.to_i
+        n = gets.chomp.to_i until n.between?(1,3)
+
+        save_file = "save_files/save_#{n}.yml"
+        File.write(save_file, self.to_yaml)
+
+        save_success_announcement_UI
+    end
+
+    def self.load_game(save_file)
+        return MinesweeperGame.new(9) if save_file == "save_files/save_0.yml"
+        
+        YAML.load_file(save_file)
+    end
+
     def initialize(n)
         @board          = Board.new(n)
         @board_size     = n
@@ -11,9 +30,11 @@ class MinesweeperGame
     def play
         welcome_announcement_UI
 
-        board.render
-        generate_board(board_size, get_pos)
-
+        if @board.is_empty?
+            board.render
+            generate_board(board_size, get_pos)
+        end
+        
         until over?
             board.render
             make_move
@@ -38,8 +59,10 @@ class MinesweeperGame
 
         if action == "r"
             reveal_recursion(pos)
-        else
+        elsif action == "f"
             flag(pos)
+        else
+            save_game
         end
     end
 
@@ -59,8 +82,8 @@ class MinesweeperGame
     def empty_adj_positions(pos)
         adjacent_positions(pos).reject do |adj_pos| 
             @seen_positions.include?(adj_pos) || 
-            board[adj_pos].value == :B ||
-            board[adj_pos].flagged?
+              board[adj_pos].value == :B ||
+              board[adj_pos].flagged?
         end
     end
 
@@ -99,7 +122,7 @@ class MinesweeperGame
         prompt_for_action_UI
         action = gets.chomp
 
-        until action == "r" || action == "f"
+        until action == "r" || action == "f" || action == "s"
             alert_invalid_action_UI
             action = gets.chomp 
         end
@@ -124,13 +147,13 @@ class MinesweeperGame
         puts
         puts  "      Oh boy, it's...".blue
         puts
-        sleep 1.1
+        sleep 1.0
         puts  "      ╔═════════════╗".green
         print "      ║ "             .green
         print         "MINESWEEPER"  .light_yellow
         puts                     " ║".green
         puts  "      ╚═════════════╝".green
-        sleep 1.5
+        sleep 1.0
         puts
         puts  "   Press enter to start".blue
         puts
@@ -187,9 +210,29 @@ class MinesweeperGame
         print        "or "       .green
         print           "Flag? " .red
 
-        puts  "('r' to reveal / 'f' to flag)".light_black
+        puts  "('r' to reveal / 'f' to flag) / 's' to save )".light_black
 
         print "> ".green
+    end
+
+    def prompt_for_save_file_UI
+        system 'clear'
+
+        puts
+        puts  "Choose a save file:".yellow
+        puts
+        print "  1"                .green
+        print    "      2"         .blue
+        puts            "      3"  .magenta
+        puts
+        print "> ".yellow
+    end
+
+    def save_success_announcement_UI
+        puts
+        print "[Success!] ".yellow
+        print  "Game has been saved."
+        sleep 1.5
     end
 
     def error_UI

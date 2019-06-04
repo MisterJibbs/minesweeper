@@ -1,6 +1,10 @@
 require_relative 'tile'
 
 class Board
+    def is_empty?
+        grid.flatten.all? { |tile| tile.value == 0 }
+    end
+    
     def initialize(n, initial_pos = [])
         @grid = Array.new(n) { Array.new(n) { Tile.new } }
         @size = n * n
@@ -48,7 +52,7 @@ class Board
     def populate_based_on(initial_pos)
         bomb_count    = 0
         desired_count = @size * 0.15
-        initial_area  = adjacent_positions(initial_pos) + initial_pos
+        initial_area  = adjacent_positions(initial_pos) << initial_pos
 
         while bomb_count < desired_count
             rand_row = rand(0...grid.count)
