@@ -4,36 +4,25 @@ class Tile
     attr_accessor :revealed, :value
 
     def initialize
-        @value = 0  # => 0 is empty, 1-8 is adjacent bombs, :B is bomb, :F is flag
+        @value    = 0
+        @flagged  = false
         @revealed = false
-        @flagged = false
     end
 
-    def value=(new_val)
-        @value = new_val
+    def value=(new_value)
+        @value = new_value
     end
 
     def reveal
         @revealed = true
     end
 
-    # for testing
-    def hide
-        @revealed = false
-    end
-    # for testing
-
     def revealed?
         @revealed
     end
 
-
     def flag
-        @flagged = true
-    end
-
-    def unflag
-        @flagged = false
+        self.flagged? ? @flagged = false : @flagged = true
     end
     
     def flagged?
@@ -41,12 +30,17 @@ class Tile
     end
 
     def to_s
-        return "►".red if flagged?
-        return "□" if !revealed?
-        return "_" if value == 0
-        return value.to_s.yellow  if value == :B
-        return value.to_s.blue    if value == 1
-        return value.to_s.green   if value == 2
-        return value.to_s.red     if value == 3
+        return "►".red if self.flagged?
+        return "□"     if !self.revealed?
+        return "_"                      if value == 0
+        return value.to_s.blue          if value == 1
+        return value.to_s.green         if value == 2
+        return value.to_s.red           if value == 3
+        return value.to_s.light_blue    if value == 4
+        return value.to_s.light_red     if value == 5
+        return value.to_s.cyan          if value == 6
+        return value.to_s.light_magenta if value == 7
+        return value.to_s.white         if value == 8
+        return value.to_s.magenta       if value == :B
     end
 end

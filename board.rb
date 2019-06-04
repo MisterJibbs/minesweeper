@@ -1,7 +1,4 @@
-system 'clear'
 require_relative 'tile'
-require 'pry'
-require 'byebug'
 
 class Board
     attr_reader   :size
@@ -11,6 +8,7 @@ class Board
         @grid = Array.new(n) { Array.new(n) { Tile.new } }
         @size = n * n
         populate
+        detect_bombs
     end
 
     def [](pos)
@@ -23,76 +21,99 @@ class Board
         grid[x][y].value = value
     end
 
-    def populate
-        bomb_count = 0
-        desired_bomb_count = @size * 0.15
-
-        until bomb_count >= desired_bomb_count
-            rand_pos = [ rand(0...grid.length), rand(0...grid.first.length) ]
-
-            if self[rand_pos].value != :B
-                self[rand_pos] = :B
-                bomb_count += 1
-            end
-        end
+    def won?
+        grid.flatten.none? { |tile| tile.value != :B && !tile.revealed? }
     end
-
-
-    def render
-        system 'clear'
-
-        if size < 100
-            puts "  #{(0...grid.first.length).to_a.join(" ")}".yellow
-            tiles_to_s.each_with_index { |row, i| puts "#{i} ".yellow + "#{row.join(' ')}" }
-            return
-        else
-            print "   "
-
-            (0...grid.first.length).to_a.each do |n|
-                if n < 10
-                    print "#{n}  ".yellow
-                else
-                    print "#{n} ".yellow
-                end
-            end
-
-            puts
-
-            tiles_to_s.each_with_index do |row, i| 
-                if i < 10
-                    puts " #{i} ".yellow + "#{row.join('  ')}"
-                else
-                    puts "#{i} ".yellow + "#{row.join('  ')}"
-                end
-            end
-        end
+    
+    def lost?
+        grid.flatten.any?  { |tile| tile.value == :B && tile.revealed? }
     end
-
-    # for testing
-    def reveal
-        grid.flatten.each { |tile| tile.reveal }
-    end
-
-    def hide
-        grid.flatten.each { |tile| tile.hide }
-    end
-    # for testing
 
     def tiles_to_s
         grid.map { |row| row.map(&:to_s) }
     end
 
-    def won?
-        grid.flatten.all? do |tile|
-            if tile.value == :B
-                true
-            else
-                tile.revealed?
+    def render
+        system 'clear'
+
+        if size < 101
+            render_small_grid
+        else
+            render_large_grid
+        end
+
+        puts
+    end
+
+    def populate
+        bomb_count    = 0
+        desired_count = @size * 0.15
+
+        while bomb_count < desired_count
+            rand_row = rand(0...grid.count)
+            rand_col = rand(0...grid.first.count)
+            rand_pos = [rand_row, rand_col]
+
+            if self[rand_pos].value != :B
+                self[rand_pos] = :B
+                bomb_count    += 1
             end
         end
     end
 
-    def lost?
-        grid.flatten.any? { |tile| tile.value == :B && tile.revealed? }
+    def detect_bombs
+        grid.each_with_index do |row, x|
+            row.each_index do |y|
+                pos = [x,y]
+                self[pos].value = adj_bombs_count(pos) if self[pos].value != :B
+            end
+        end
+    end
+
+    def adjacent_positions(pos)
+        adj_positions = []
+        x = pos[0]
+        y = pos[1]
+
+        (x-1..x+1).each do |i|
+            (y-1..y+1).each do |j|
+                next if [i,j] == [x,y]
+                adj_positions << [i, j] if pos_within_grid?([i, j])
+            end
+        end
+
+        adj_positions
+    end
+
+    def adj_bombs_count(pos)
+        adjacent_positions(pos).count { |position| self[position].value == :B }
+    end
+
+    def pos_within_grid?(pos)
+        pos[0].between?(0, grid.count - 1) &&
+        pos[1].between?(0, grid.first.count - 1)
+    end
+
+    # Readability Methods
+
+    def render_small_grid
+        puts "  #{(0...grid.first.count).to_a.join(' ')}".yellow
+        tiles_to_s.each_with_index { |row, i| puts "#{i} ".yellow + "#{row.join(' ')}" }
+    end
+
+    def render_large_grid
+        print "   "
+        
+        (0...grid.first.length).to_a.each do |n|
+            print "#{n} ".yellow
+            print " " if n < 10
+        end
+
+        puts
+
+        tiles_to_s.each_with_index do |row, i| 
+            print " " if i < 10
+            puts "#{i} ".yellow + "#{row.join('  ')}"
+        end
     end
 end
