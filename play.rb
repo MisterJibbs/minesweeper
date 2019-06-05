@@ -10,3 +10,4 @@ if __FILE__ == $0
     
     game.play
 end
+
