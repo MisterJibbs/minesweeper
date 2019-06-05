@@ -1,12 +1,12 @@
 require_relative 'tile'
 
 class Board
-    def initialize(n, initial_pos = [])
-        @grid = Array.new(n) { Array.new(n) { Tile.new } }
-        @size = n
+    def initialize(size, first_pos = [])
+        @grid = Array.new(size) { Array.new(size) { Tile.new } }
+        @size = size
 
-        unless initial_pos.empty?
-            populate_based_on(initial_pos)
+        unless first_pos.empty?
+            bombify_based_on(first_pos)
             detect_bombs
         end
     end
@@ -22,7 +22,7 @@ class Board
     end
 
     def won?
-        grid.flatten.none? { |tile| !tile.bombed? && !tile.revealed? }
+        grid.flatten.all? { |tile| tile.bombed? != tile.revealed? }
     end
     
     def lost?
@@ -45,69 +45,71 @@ class Board
         puts
     end
 
-    def populate_based_on(initial_pos)
-        bomb_count    = 0
-        desired_count = (size**2) * 0.15
-        initial_area  = adjacent_positions(initial_pos) << initial_pos
+    def bombify_based_on(first_pos)
+        bomb_count = 0
+        goal_count = (size**2) * 0.15
+        start_area = neighbors(first_pos) << first_pos
 
-        while bomb_count < desired_count
-            rand_pos = [ rand(grid.size), rand(grid.first.size)]
+        while bomb_count < goal_count
+            rand_pos = [ rand(grid.size), rand(grid[0].size)]
 
-            if !self[rand_pos].bombed? && !initial_area.include?(rand_pos)
-                self[rand_pos] = :B
-                bomb_count    += 1
+            if !self[rand_pos].bombed? && !start_area.include?(rand_pos)
+                self[rand_pos].place_bomb
+                bomb_count += 1
             end
         end
     end
 
     def detect_bombs
-        grid.each_with_index do |row, x|
-            row.each_index do |y|
+        grid.each_index do |x|
+            grid[x].each_index do |y|
                 pos = [x,y]
-                self[pos].value = adj_bombs_count(pos) if !self[pos].bombed?
+                self[pos].value = nearby_bombs_count(pos) if !self[pos].bombed?
             end
         end
     end
 
-    def adjacent_positions(pos)
-        adj_positions = []
-        x = pos[0]
-        y = pos[1]
+    def neighbors(pos)
+        neighbors = []
+        x, y = pos
 
         (x-1..x+1).each do |i|
             (y-1..y+1).each do |j|
                 next if [i,j] == [x,y]
-                adj_positions << [i, j] if pos_within_grid?([i, j])
+                neighbors << [i, j] if pos_within_grid?([i, j])
             end
         end
 
-        adj_positions
+        neighbors
     end
 
-    def adj_bombs_count(pos)
-        adjacent_positions(pos).count { |position| self[position].bombed? }
+    def nearby_bombs_count(pos)
+        neighbors(pos).count { |n_pos| self[n_pos].bombed? }
     end
 
     def pos_within_grid?(pos)
         pos[0].between?(0, grid.count - 1) &&
-        pos[1].between?(0, grid.first.count - 1)
+        pos[1].between?(0, grid[0].count - 1)
     end
 
-    def is_empty?
+    def is_new?
         grid.flatten.all? { |tile| tile.value == 0 }
     end
 
-    # Readability Methods
+    # For Readability Methods
 
     def render_small_grid
-        puts "  #{(0...grid.first.count).to_a.join(' ')}".yellow
-        tiles_to_s.each_with_index { |row, i| puts "#{i} ".yellow + "#{row.join(' ')}" }
+        col_labels = (0...grid[0].count).to_a
+        puts "  " + col_labels.join(' ').yellow
+
+        tiles_to_s.each_with_index { |row, i| puts "#{i} ".yellow + row.join(' ') }
     end
 
     def render_large_grid
         print "   "
-        
-        (0...grid.first.length).to_a.each do |n|
+
+        col_labels = (0...grid[0].count).to_a
+        col_labels.each do |n|
             print "#{n} ".yellow
             print " " if n < 10
         end
@@ -116,7 +118,7 @@ class Board
 
         tiles_to_s.each_with_index do |row, i| 
             print " " if i < 10
-            puts "#{i} ".yellow + "#{row.join('  ')}"
+            puts "#{i} ".yellow + row.join('  ')
         end
     end
 
